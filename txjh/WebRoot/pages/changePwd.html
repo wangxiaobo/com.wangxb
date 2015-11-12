@@ -14,6 +14,10 @@ body {
 	height: 100%;
 	overflow: hidden;
 }
+
+.errorText {
+	color: red;
+}
 </style>
 <script type="text/javascript">
 
@@ -24,21 +28,24 @@ function onResetClick(e) {
    
 }
 
-
 	function onPwdValidation1(e) {
-		if (e.isValid) {
-			if (e.value.length < 6) {
-				e.errorText = "密码不能少于6个字符";
-				e.isValid = false;
-			}
-		}
+		var id = e.sender.name + "_error";
+	    var el = document.getElementById(id);
+	    if (el) {
+	        el.innerHTML = e.errorText;
+	    }
 	}
 	
 	function onPwdValidation2(e) {
+	 var id = e.sender.name + "_error";
+	    var el = document.getElementById(id);
+	    if (el) {
+	        el.innerHTML = e.errorText;
+	    }
 		var loginPw1 = mini.get("loginPw1").getValue();
 		if (e.isValid) {
 			if (e.value != loginPw1) {
-				e.errorText = "两次输入的密码不一致";
+				el.innerHTML = "两次输入的密码不一致";
 				e.isValid = false;
 			}
 		}
@@ -83,13 +90,16 @@ function onResetClick(e) {
             <tr>
                 <td style="width:120px;">新密码：</td>
                 <td>
-                    <input id="loginPw1" name="loginPw1"  class="mini-password"  onvalidation="onPwdValidation1"required="true" style="width:150px;"/>
+                    <input id="loginPw1" errorMode="none" name="loginPw1"  class="mini-password"  onvalidation="onPwdValidation1"   required="true" vtype="minLength:6" minLengthErrorText="密码不能少于6个字符"  style="width:150px;"/>
+               		<span id="loginPw1_error" class="errorText"></span>
                 </td>    
             </tr>
             <tr>
                 <td style="width:120px;">确认密码：</td>
                 <td>
-                    <input id="loginPw2" name="loginPw2" onvalidation="onPwdValidation2" class="mini-password" requiredErrorText="密码不能为空" required="true" style="width:150px;" onenter="onLoginClick"/>
+                    <input id="loginPw2" errorMode="none" name="loginPw2" onvalidation="onPwdValidation2" class="mini-password"  required="true" vtype="minLength:6" minLengthErrorText="密码不能少于6个字符" style="width:150px;"/>
+                    <span id="loginPw2_error" class="errorText"></span>
+                
                 </td>
             </tr>            
             <tr>

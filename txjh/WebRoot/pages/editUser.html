@@ -18,6 +18,9 @@ body {
 	 font-size: 11pt;
     font-family:"microsoft yahei" !important
 }
+.errorText {
+	color: red;
+}
 </style>
 <script type="text/javascript">
    
@@ -248,6 +251,31 @@ body {
 		return false;	
 	}
 	
+	
+	//密码校验
+	function onPwdValidation1(e) {
+		var id = e.sender.name + "_error";
+	    var el = document.getElementById(id);
+	    if (el) {
+	        el.innerHTML = e.errorText;
+	    }
+	}
+	
+	function onPwdValidation2(e) {
+	 var id = e.sender.name + "_error";
+	    var el = document.getElementById(id);
+	    if (el) {
+	        el.innerHTML = e.errorText;
+	    }
+		var loginPw1 = mini.get("loginPw1").getValue();
+		if (e.isValid) {
+			if (e.value != loginPw1) {
+				el.innerHTML = "两次输入的密码不一致";
+				e.isValid = false;
+			}
+		}
+	}
+	
 </script>
 </head>
 <body>
@@ -438,11 +466,17 @@ body {
 					border="0">
 					<tr>
 						<td style="width:100px">新密码：</td>
-						<td style="width:250px"><input id="loginPw1" class="mini-password"  name="loginPw1" /></td>
+						<td style="width:250px">
+							<input id="loginPw1" errorMode="none" name="loginPw1"  class="mini-password"  onvalidation="onPwdValidation1"    vtype="minLength:6" minLengthErrorText="密码不能少于6个字符"  style="width:150px;"/>
+               				<span id="loginPw1_error" class="errorText"></span>				</td>
 					</tr>
 				   <tr>
 						<td>确认密码：</td>
-						<td><input id="loginPw2" class="mini-password"  name="loginPw2"/></td>
+						<td>
+							<input id="loginPw2" errorMode="none" name="loginPw2" onvalidation="onPwdValidation2" class="mini-password"  vtype="minLength:6" minLengthErrorText="密码不能少于6个字符" style="width:150px;"/>
+		                	<span id="loginPw2_error" class="errorText"></span>
+		
+						</td>
 					</tr>
 				</table>
 			
