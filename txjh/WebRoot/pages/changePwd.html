@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script src="/txjh/boot.js" type="text/javascript"></script>
+<script src="/txjh/js/common/app.js" type="text/javascript"></script>
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+</style>
+<script type="text/javascript">
+
+
+function onResetClick(e) {
+    var form = new mini.Form("#loginWindow");
+    form.clear();
+   
+}
+
+
+	function onPwdValidation1(e) {
+		if (e.isValid) {
+			if (e.value.length < 6) {
+				e.errorText = "密码不能少于6个字符";
+				e.isValid = false;
+			}
+		}
+	}
+	
+	function onPwdValidation2(e) {
+		var loginPw1 = mini.get("loginPw1").getValue();
+		if (e.isValid) {
+			if (e.value != loginPw1) {
+				e.errorText = "两次输入的密码不一致";
+				e.isValid = false;
+			}
+		}
+	}
+
+	function onPwChClick(e) {
+		var form = new mini.Form("#loginWindow");
+		form.validate();
+		if (form.isValid() == false){
+			return;
+		}
+		var user = mini.decode(SUI.store.get("loginUser"));
+		user.loginPw = mini.get("loginPw1").getValue();
+		
+		user.isxgmm="1";
+		
+		$.post("/txjh/op/user/saveUser.do", user, function(data) {
+			if (data.success == true) {
+				mini.confirm("你已成功修改密码，马上进入登录界面重新登录","提示", function(m){
+	        		window.location ="/txjh/login.html" ;
+					
+				});
+			}else{
+				mini.alert("用户名密码修改失败", "提示"); 
+			}
+		});
+	}
+	
+	
+	
+</script>
+</head>
+<body>
+     <div id="loginWindow" style="position: absolute;left: 30%;top: 30%;">
+        
+        <table>
+            <tr>
+            	<td colspan="2"  style="background: url(/txjh/image/icons/left_icon01.png) no-repeat;padding-left: 20px">
+            	请您修改初始密码
+            	</td>
+            </tr>
+            <tr>
+                <td style="width:120px;">新密码：</td>
+                <td>
+                    <input id="loginPw1" name="loginPw1"  class="mini-password"  onvalidation="onPwdValidation1"required="true" style="width:150px;"/>
+                </td>    
+            </tr>
+            <tr>
+                <td style="width:120px;">确认密码：</td>
+                <td>
+                    <input id="loginPw2" name="loginPw2" onvalidation="onPwdValidation2" class="mini-password" requiredErrorText="密码不能为空" required="true" style="width:150px;" onenter="onLoginClick"/>
+                </td>
+            </tr>            
+            <tr>
+                <td align="center" colspan="2">
+                    <a onclick="onPwChClick" class="mini-button" style="width:60px;">提交</a>
+                    <a onclick="onResetClick" class="mini-button" style="width:60px;">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+
+</html>

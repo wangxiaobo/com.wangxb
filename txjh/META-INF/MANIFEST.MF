@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: springmvc01
+Bundle-SymbolicName: springmvc01
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.sxt.controller,
+ com.sxt.dao,
+ com.sxt.dao.impl,
+ com.sxt.model,
+ com.sxt.service,
+ com.sxt.service.impl,
+ com.xst.Listener,
+ com.xst.filter,
+ com.xst.utils

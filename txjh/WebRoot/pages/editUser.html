@@ -1,0 +1,462 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script src="/txjh/boot.js" type="text/javascript"></script>
+<script src="/txjh/js/common/app.js" type="text/javascript"></script>
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.mini-textbox-input{
+	 font-size: 11pt;
+    font-family:"microsoft yahei" !important
+}
+</style>
+<script type="text/javascript">
+   
+    var cotorlArry= ["xm","jg","jzd","hxDm","nl","xb","xcap","jdyq","cysm","bz1","bz2","grjz","email","sjdh","qq","wx","szbj","rshgw","gy30"];
+
+    cotorlArry.push("khyh");
+    cotorlArry.push("yhzh");
+    cotorlArry.push("zzje");
+    cotorlArry.push("zzsj");
+    cotorlArry.push("zzbz");
+    cotorlArry.push("cxfs");
+    cotorlArry.push("tzr");
+    cotorlArry.push("hksfydz");
+	$(function() {
+		var user = mini.decode(SUI.store.get("loginUser"));
+		
+		mini.parse();
+		reloadXc();
+		
+		var crr_user = mini.decode(SUI.store.get("loginUser"));
+        
+		//文件上传绑定
+		$("#file_upload").uploadify({
+			//指定swf文件
+			'swf' : '/txjh/scripts/uploadify/uploadify.swf',
+			//后台处理的页面
+			'uploader' : '/txjh/op/user/uploadFile_'+crr_user.userId,
+			//按钮显示的文字
+			'buttonText' : '上传个人近照',
+			 'height': 20,
+			//显示的高度和宽度，默认 height 30；width 120
+			//'height': 15,
+			//'width': 80,
+			//上传文件的类型  默认为所有文件    'All Files'  ;  '*.*'
+			//在浏览窗口底部的文件类型下拉菜单中显示的文本
+			'fileTypeDesc' : 'Image Files',
+			//允许上传的文件后缀
+			'fileTypeExts' : '*.gif; *.jpg; *.png',
+			//发送给后台的其他参数通过formData指定
+			//'formData': { 'someKey': 'someValue', 'someOtherKey': 1 },
+			//上传文件页面中，你想要用来作为文件队列的元素的id, 默认为false  自动生成,  不带#
+			//'queueID': 'fileQueue',
+			//选择文件后自动上传
+			'auto' : true,
+			//设置为true将允许多文件上传
+			'multi' : false,
+			'fileObjName' : 'file',
+			'onUploadSuccess' : function(file, data, response) {
+				data = mini.decode(data);
+				if (data.success == true) {
+					var imageList=[];
+					var image = data.data;
+					image.flag = 1;//个人头像
+					image.content = "个人近照";
+					//发送文件保存
+					imageList.push(image);
+					var delImageStr =[];
+					$.post("/txjh/op/user/saveImage.do", {imageStr:mini.encode(imageList),delImageStr:mini.encode(delImageStr)}, function(data) {
+						if (data.success == true) {
+							data = data.data;
+							mini.get("grjz").setValue(data[0].imageId);
+							$("#grjz_img").attr("src", "/txjh/op/user/file/"+data[0].imageId);
+							saveUser(false);//保存信息不弹出提示
+						}
+					});
+					
+				} else {
+					mini.alert("上传失败", "提示");
+				}
+			}
+		});
+		
+});
+
+	////////////////////
+	//标准方法接口定义
+	function SetData(data) {
+		//跨页面传递的数据对象，克隆后才可以安全使用
+		data = mini.clone(data);
+		debugger;
+		new mini.Form("userxx").setData(data);
+		
+		 if("D" == mini.get("jdyq").getValue() ){
+			 $("#jdyq_tr").show();
+		 }else{
+			 $("#jdyq_tr").hide();
+		 }
+		//设置默认图片
+		if (data.grjz) {
+			$("#grjz_img").attr("src", "/txjh/op/user/file/" + data.grjz+"-1");
+		} else {
+			$("#grjz_img").attr("src", "/txjh/image/nan.jpg");
+		}
+		$("#QRCode").attr("src", "/txjh/op/user//QRCode/" + data.userId);
+		//是否可编辑
+		var crr_user = mini.decode(SUI.store.get("loginUser"));
+		//自己和管理员可编辑
+		if(crr_user.userId == data.userId ){
+			$("#tabsButtons").show();
+			$("#upload_tr").show();
+			mini.get(cotorlArry[0]).disable();
+			mini.get("hksfydz").disable();
+		}else if("1" == crr_user.isgly){
+			$("#tabsButtons").show();
+			$("#upload_tr").show();
+			mini.get("sczpBut").disable();
+			mini.get(cotorlArry[0]).disable();
+		}
+		else{
+			for(var i=0;i < cotorlArry.length ;i++){
+				mini.get(cotorlArry[i]).disable();	
+			}
+			var tabs = mini.get("tabs1");
+			var grxcTab = tabs.removeTab("mmgl");//不显示密码管理
+			var grxcTab = tabs.removeTab("hkdj");//不显示汇款登记
+			
+		}
+
+	}
+
+	//绑定 保存事件
+	/*falg 是否弹出提示标志*/
+	
+	function saveUser(falg) {
+		if(!checkPass()){
+			mini.alert("两次输入的密码不一致", "提示");
+			var tabs = mini.get("tabs1");
+		    tabs.activeTab("mmgl");//不显示密码管理	
+			return;
+		}
+		
+		var  data = new mini.Form("userxx").getData();	
+		$.post("/txjh/op/user/saveUser.do", data, function(data) {
+			if (data.success == true) {
+				//是否可编辑
+				var crr_user = mini.decode(SUI.store.get("loginUser"));
+				if(data.data.userId == crr_user.userId){ //和当前用户一致时
+					SUI.store.set("loginUser", mini.encode(data.data));
+				}
+				
+				if(falg != false){
+					if(mini.get("loginPw1").getValue()){
+						mini.get("isxgmm").setValue("1");
+						mini.confirm("你已成功修改密码，是否跳转到登录界面","提示", function(m){
+							if("ok" ==m ){
+								window.top.location =bootPATH+"login.html";
+							}else{
+								window.top.location="/txjh/pages/index.html"
+							}
+							
+						});
+						
+					}else{
+						mini.alert("保存个人信息成功", "提示");
+					}
+					
+				}
+				window.top.$("#xylbBut").click();
+			} else {
+				if(falg != false){
+					mini.alert("保存个人信息失败", "提示");
+				}
+			}
+		});
+	}
+	function onJdyqCh(){
+		 var jdyq = mini.get("jdyq");
+		 var id = jdyq.getValue();
+		 if("D" == id ){
+			 $("#jdyq_tr").show();
+		 }else{
+			 $("#jdyq_tr").hide();
+		 }
+	
+	}
+	//刷新相册table页面
+	
+	function reloadXc(){
+		var tabs = mini.get("tabs1");
+		//个人相册
+		var grxcTab = tabs.getTab("grxc");
+		
+		tabs.loadTab("/txjh/pages/imageView.html", grxcTab, function(){
+			//加载
+			var  data = new mini.Form("userxx").getData();
+			var iframe = tabs.getTabIFrameEl(grxcTab);
+			iframe.contentWindow.showImage(data.userId);
+			
+		}, function(){
+			//销毁
+		});
+	}
+	
+	
+	//上传文件
+	function onSczp(){
+		
+		mini.open({
+			url : "/txjh/pages/fileUpload.html",
+			title : "照片管理",
+			width : 600,
+			height :400,
+			showMaxButton: true,
+			onload : function() {
+				var  data = new mini.Form("userxx").getData();
+				var iframe = this.getIFrameEl();
+				iframe.contentWindow.loadImage(data.userId);
+			},
+			ondestroy : function(action) {
+				reloadXc();
+				var tabs = mini.get("tabs1");
+				//个人相册
+				var grxcTab = tabs.getTab("grxc");
+				tabs.reloadTab (grxcTab);
+			}
+		});
+	}
+	
+	
+	function checkPass(){
+		var pass = mini.get("loginPw1").getValue();
+		if(pass == mini.get("loginPw2").getValue() ){
+			if(pass){
+				mini.get("loginPw").setValue(pass);
+			}
+			return true;
+		}
+		return false;	
+	}
+	
+</script>
+</head>
+<body>
+
+	<form id="userxx" class="mini-fit" method="post">
+		<input id="userId" class="mini-textbox"  name="userId" style="display:none;"/>
+		<input id="loginName" class="mini-textbox"  name="loginName" style="display:none;"/>
+		<td><input id="loginPw" class="mini-textbox"  name="loginPw" style="display:none;"/></td>
+		<td><input id="isgly" class="mini-textbox"  name="isgly" style="display:none;"/></td>
+		<td><input id="isxgmm" class="mini-textbox"  name="isxgmm" style="display:none;"/></td>
+		
+		<div id="tabs1" class="mini-tabs" activeIndex="0"
+			style="width:100%;height:100%;min-height: 300px" plain="false"  buttons="#tabsButtons">
+			<div title="个人资料">
+				<table
+					style="width:100%;margin: 0px;padding: 0px  40px;table-layout:fixed;"
+					border="0">
+					<tr>
+						<td style="width:100px">姓名：</td>
+						<td style="width:250px"><input id="xm" name="xm" class="mini-textbox"
+							width="90%" /></td>
+						<td rowspan="6" align="center">
+						    <input id="grjz" name="grjz" class="mini-textbox" style="display:none;"/>
+							<table border="0" style="margin: 0px;padding: 0px;">
+								<tr>
+									<td><img id="grjz_img" class="imgeShow" src=""  style="width:160px;height:160px;"/></td>
+								</tr>
+								<tr id="upload_tr" style="display: none">
+									<td align="center" height="40px">
+									    <!-- <a class="mini-button" iconCls="icon-edit" onclick="onSctx()" tooltip="上传">上传个人近照</a> --> 
+										<input id="file_upload" name="file_upload" type="file" multiple="true" >
+									</td>
+								</tr>
+							</table>						
+						</td>
+					</tr>
+					<tr>
+						<td>班级：</td>
+						<td>
+						 <input id="szbj" name="szbj" showNullItem="false" width="90%" class="mini-combobox"  data="[{DM:1,MC:'一班'},{DM:2,MC:'二班'},{DM:3,MC:'三班'}]" value="" textField="MC" valueField="DM" />
+						</td>
+					</tr>
+					<tr>
+						<td>籍贯：</td>
+						<td><input id="jg" name="jg" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>工作单位：</td>
+						<td><input id="hxDm"  name="hxDm" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>出生日期：</td>
+						<td><input id="nl"  name="nl" class="mini-datepicker" format="yyyy-MM-dd" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>性别：</td>
+						<td>
+						 <input id="xb" name="xb" showNullItem="false" width="90%" class="mini-combobox"  data="[{DM:1,MC:'男'},{DM:2,MC:'女'}]"value="1" textField="MC" valueField="DM" />
+						</td>
+					</tr>
+					<tr>
+						<td>联系地址：</td>
+						<td colspan="2"><input id="jzd"  name="jzd" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>人生感悟：</td>
+						<td colspan="2"><input   id="rshgw"   name="rshgw" class="mini-textarea"  vtype="maxLength:70"
+							width="90%" /></td>
+					</tr>
+					<tr>
+						<td>30周年感言：</td>
+						<td colspan="2"><input   id="gy30"   name="gy30" class="mini-textarea"   vtype="maxLength:70"
+							width="90%" /></td>
+					</tr>
+					<tr>
+						<td style="width:100px">Email：</td>
+						<td style="width:250px"><input id="email" name="email"
+							class="mini-textbox" width="90%"  vtype="email"/></td>
+							<td rowspan="4" align="center">
+							 <img id="QRCode" class="QRCode" src=""  style="width:120px;height:120px;"/>
+							<div>扫一扫加入通讯录<div>
+							</td>
+					</tr>
+					<tr>
+						<td>电话/手机：</td>
+						<td><input id="sjdh" name="sjdh" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>QQ：</td>
+						<td><input id="qq" name="qq" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>微信：</td>
+						<td><input  id="wx" name="wx" class="mini-textbox" width="90%" /></td>
+					</tr>
+				</table>
+
+
+			</div>
+			<div title="活动安排">
+				<table
+					style="width:100%;margin: 0px;padding: 20px 50px;table-layout:fixed;"
+					border="0">
+					
+					<tr>
+						<td style="width:100px">行程安排：</td>
+						<td style="width:150px"><input id="cxfs" name="cxfs" showNullItem="false"
+							width="100%" class="mini-combobox"
+							data="[{DM:1,MC:'飞机'},{DM:2,MC:'高铁'},{DM:3,MC:'火车'},{DM:4,MC:'大巴'},{DM:5,MC:'自驾'},{DM:9,MC:'其他'}]" textField="MC"
+							valueField="DM" /></td>
+						<td ><input id="xcap" name="xcap" class="mini-textbox"  emptyText="请说明到站和到达时间"
+							width="100%" /></td>
+					</tr>
+					<tr>
+						<td>房型：</td>
+						<td colspan="2">
+						<input id="jdyq" name="jdyq" showNullItem="false"
+							width="100%" class="mini-combobox"  onValuechanged="onJdyqCh"
+							data="[{DM:'0',MC:'未选择'},{DM:'A',MC:'A、高级双人房（￥318）'},{DM:'B',MC:'B、标准单人房（￥268）'},{DM:'C',MC:'C、公寓套房（￥680）'},{DM:'D',MC:'D、公寓复式套房（￥1298）其一楼为客厅、二楼为独立的三间（B）'},{DM:'E',MC:'E、豪华大床房/双床房（￥368）'}]" value="1" textField="MC"
+							valueField="DM" />
+							</td>
+					</tr>
+					<tr   id="jdyq_tr"  style="display: none">
+						<td>同住人：</td>
+						<td colspan="2"><input id="tzr" name="tzr" class="mini-textarea"   emptyText="请填写你的同住人"
+							width="100%" /></td>
+					</tr>
+					<tr>
+						<td>餐饮说明：</td>
+						<td colspan="2"><input id="cysm" name="cysm" class="mini-textarea"
+							width="100%" /></td>
+					</tr>
+					<tr>
+						<td>备注1：</td>
+						<td colspan="2"><input id="bz1" name="bz1" class="mini-textarea"
+							width="100%" /></td>
+					</tr>
+					<tr>
+						<td>备注2：</td>
+						<td colspan="2"><input id="bz2" name="bz2" class="mini-textarea"
+							width="100%" /></td>
+					</tr>
+					
+					
+				</table>
+
+			</div>
+			<div name="hkdj" title="汇款登记">
+				<table
+					style="width:100%;margin: 0px;padding: 20px 50px;table-layout:fixed;"
+					border="0">
+					<tr>
+						<td style="width:100px">开户银行：</td>
+						<td style="width:250px">
+						<input id="khyh" name="khyh"  class="mini-textbox" width="90%" />
+						</td>
+						<td rowspan="4"></td>
+					</tr>
+					<tr>
+						<td>银行账号：</td>
+						<td><input id="yhzh" name="yhzh" class="mini-textbox" width="90%" /></td>
+					</tr>
+					<tr>
+						<td>转账金额：</td>
+						<td><input id="zzje" name="zzje" class="mini-textbox" width="90%" vtype="float" /></td>
+					</tr>
+					<tr>
+						<td>转账时间：</td>
+						<td><input  id="zzsj" name="zzsj"  class="mini-datepicker"   width="90%" /></td>
+					</tr>
+					<tr>
+						<td>备注：</td>
+						<td colspan="2"><input  id="zzbz" name="zzbz" class="mini-textarea" width="90%" /></td>
+					</tr>
+					<tr>
+						<td colspan="2" >汇款到账情况(<span style="color: red;">由管理员操作更新</span>)：</td>
+						<td >
+						 <input id="hksfydz" name="hksfydz" class="mini-radiobuttonlist" textField="MC" valueField="DM" data="[{DM:'1',MC:'已到账'}, {DM:'0',MC:'暂未到账'}]"/>
+						</td>
+					</tr>
+				</table>
+
+			</div>
+			<div name="grxc" title="个人相册"  url=""></div>
+			<div name="mmgl" title="密码管理"  url="">
+					<table
+					style="width:100%;margin: 0px;padding: 20px 50px;table-layout:fixed;"
+					border="0">
+					<tr>
+						<td style="width:100px">新密码：</td>
+						<td style="width:250px"><input id="loginPw1" class="mini-password"  name="loginPw1" /></td>
+					</tr>
+				   <tr>
+						<td>确认密码：</td>
+						<td><input id="loginPw2" class="mini-password"  name="loginPw2"/></td>
+					</tr>
+				</table>
+			
+			</div>
+			
+		</div>
+
+		<div id="tabsButtons"  style="display: none;margin:0px; margin-top:10px ;padding-top: 8px!important;">
+		  <a class="mini-button mini-button-iconLeft" iconCls="icon-save" onclick="saveUser()" >保存个人资料</a>
+		  <a id="sczpBut" class="mini-button mini-button-iconLeft" iconCls="icon-upload" onclick="onSczp()" >照片管理</a>
+		</div>
+	</form>
+
+</body>
+
+
+</html>
