@@ -220,6 +220,24 @@ public class UserController extends BaseController {
 			
 	}
 	
+	@RequestMapping(value = "/addUser")
+	@ResponseBody
+	public ResultVO addUser(UserInfo userInfo){
+		
+		if(null == userInfo){
+			return  ResultVO.setFail("用户信息为空");
+		}
+		List userList =  userService.getList(userInfo);
+		if(!userList.isEmpty()){
+			return  ResultVO.setFail("该用户已存在");
+		}
+		//获取最大ID 
+		userInfo.setUserId(getMaxUserId()+1);
+		userService.addObject(userInfo);
+		return  ResultVO.setSuccess(userInfo);
+			
+	}
+	
 	@RequestMapping(value = "/saveImage")
 	@ResponseBody
 	public ResultVO saveImage(String imageStr,String delImageStr){
@@ -325,5 +343,11 @@ public class UserController extends BaseController {
 		in.close();
 		out.close();
 		
+	}
+	
+	
+	private  Integer getMaxUserId(){		
+		Integer maxUserid = (Integer) userService.getObjectBySql("select max(t.user_id) from user_info t ", null);
+		return maxUserid;
 	}
 }

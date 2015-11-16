@@ -122,8 +122,18 @@ body {
 			$("#tabsButtons").show();
 			$("#upload_tr").show();
 			mini.get(cotorlArry[0]).disable();
-			mini.get("hksfydz").disable();
-		}else if("1" == crr_user.isgly){
+			if("1" == data.hksfydz){ //汇款页面元素 不可编辑，如果是已到账状态
+				mini.get("khyh").disable();
+				mini.get("yhzh").disable();
+				mini.get("zzje").disable();
+				mini.get("zzsj").disable();
+				mini.get("zzbz").disable();	
+			}
+			if("1" != crr_user.isgly){ //不是管理员 不可以编辑汇款状态
+				mini.get("hksfydz").disable();
+			}
+			
+		}else if("1" == crr_user.isgly){ //管理员控制
 			$("#tabsButtons").show();
 			$("#upload_tr").show();
 			mini.get("sczpBut").disable();
@@ -451,11 +461,15 @@ body {
 						<td colspan="2"><input  id="zzbz" name="zzbz" class="mini-textarea" width="90%" /></td>
 					</tr>
 					<tr>
-						<td colspan="2" >汇款到账情况(<span style="color: red;">由管理员操作更新</span>)：</td>
-						<td >
-						 <input id="hksfydz" name="hksfydz" class="mini-radiobuttonlist" textField="MC" valueField="DM" data="[{DM:'1',MC:'已到账'}, {DM:'0',MC:'暂未到账'}]"/>
+						<td >到账情况：</td>
+						<td>
+						 <input id="hksfydz" name="hksfydz" class="mini-radiobuttonlist" textField="MC" valueField="DM" data="[{DM:'1',MC:'已到账'}, {DM:'0',MC:'暂未到账'}]"  />
 						</td>
 					</tr>
+					<tr>
+                         <td> </td>
+                         <td colspan="2" ><span style="color: red;">温馨提示：汇款登记资料仅财务管理员和您可查看；汇款到账情况由财务管理员核对正确后进行确认。</span></td>
+                   </tr>
 				</table>
 
 			</div>

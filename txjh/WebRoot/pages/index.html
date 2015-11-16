@@ -68,6 +68,13 @@ body {
     text-align:center;
 	background:url(/txjh/image/fr/jjhImg.png) no-repeat ;
 }
+
+.icon-jnc{
+    width: 100%;
+    height:100%;
+    text-align:center;
+	background:url(/txjh/image/fr/jnc.png) no-repeat ;
+}
 .mini-button-text{
    margin:0px;
    padding:0px;
@@ -83,11 +90,13 @@ body {
 			<table border="0" cellpadding="0" cellspacing="0" style="width: 100% ;height: 100%;margin: 0px;padding: 0px"><tr>
 			<td class="header"  width="1400px">
 				<div class="header2"></div>
-				<div id="muenList" style="position:absolute;top:40%;left:35%;" id="nav">
+				<div id="muenList" style="position:absolute;top:40%;left:30%;" id="nav">
  			       <a class="mini-button " iconCls="icon-xylb" id="xylbBut" plain="true" style="display: none"></a>
 					<a class="mini-button " iconCls="icon-wdzlwf" id="grxxwh" plain="true"></a>
 					<a class="mini-button " iconCls="icon-ckxc" id="cyxc" plain="true"></a>
 					<a class="mini-button " iconCls="icon-jjh" id="jjhBut" plain="true"></a>
+					<a class="mini-button " iconCls="icon-jnc" id="jnc" plain="true"></a>
+					
 					
 				</div>
 			</td >
@@ -113,7 +122,7 @@ body {
 			height="30">
 			<div style="font-size: 12pt;font-family:'microsoft yahei'!important ;text-align: center;">
 					<span class="icon-user" >&nbsp;&nbsp;&nbsp;&nbsp;</span>欢迎您:&nbsp;&nbsp;<span
-						id="loginName"></span>   <a href="javascript:void(-1)"></a>
+						id="loginName"></span>   <a href="javascript:void(-1)"  style="display: none" id="adduser" >新增用户</a>
 			</div>
 		</div>
 	</div>
@@ -131,6 +140,7 @@ body {
 				$("#loginName").html(user.xm);
 				if(1 == user.isgly){
 					$("#loginName").html(user.xm+"（管理员）");
+					$("#adduser").show();
 				}
 			}
 			
@@ -165,6 +175,10 @@ body {
 			$("#jjhBut").click(function(){
 				window.open("/txjh/doc/jjh.htm","_blank");
 			});
+			//纪念册
+			$("#jnc").click(function(){
+				window.open("http://985.so/qpZH","_blank");
+			});
 			//退出loginOut
 			//校友列表
 			$("#loginOut").click(function(){
@@ -175,7 +189,27 @@ body {
 	            	window.location =bootPATH+"login.html";
 	            });
 			});
-
+			
+			
+			//添加用户
+			$("#adduser").click(function(){
+				
+				mini.open({
+					url : "/txjh/pages/addUser.html",
+					title : "新增用户",
+					width :  600,
+					height : 200,
+					onload : function() {
+						
+					},
+					ondestroy : function(action) {
+						
+					}
+				});
+				
+			});
+			
+			
 			
 			checkUser(user);//检查用户
 		});
