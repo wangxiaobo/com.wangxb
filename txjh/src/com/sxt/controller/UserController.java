@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -189,13 +191,13 @@ public class UserController extends BaseController {
 			out.write(0);
 		}else{
 			
-			/*if( params.length>1){
-				float quality=Float.valueOf(params[1])/10.0f;
-				Thumbnails.of(image.getPath()).scale(quality).toOutputStream(out);
+			if( params.length>1){
+				Integer quality=Integer.valueOf(params[1]);
+				Thumbnails.of(image.getPath()).size(50*quality,50*quality).toOutputStream(out);
 			}else{
 				out.write(FileUtil.readFileToBytes(image.getPath()));
-			}*/
-			out.write(FileUtil.readFileToBytes(image.getPath()));
+			}
+			//out.write(FileUtil.readFileToBytes(image.getPath()));
 		}
 		out.flush();
 		out.close();

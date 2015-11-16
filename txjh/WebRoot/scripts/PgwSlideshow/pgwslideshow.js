@@ -1,10 +1,5 @@
 /**
- * PgwSlideshow - Version 2.0
  *
- * Copyright 2014, Jonathan M. Piat
- * http://pgwjs.com - http://pagawa.com
- * 
- * Released under the GNU GPLv3 license - http://opensource.org/licenses/gpl-3.0
  */
 ;(function($){
     $.fn.pgwSlideshow = function(options) {
@@ -13,6 +8,7 @@
             mainClassName : 'pgwSlideshow',
             transitionEffect : 'sliding',
             displayList : true,
+            displayModel : 'thumbnail',
             displayControls : true,
             touchControls : true,
             autoSlide : false,
@@ -21,7 +17,8 @@
             maxHeight : null,
             adaptiveDuration : 200,
             transitionDuration : 500,
-            intervalDuration : 3000
+            intervalDuration : 3000,
+            data:[]
         };
 
         if (this.length == 0) {
@@ -64,6 +61,7 @@
                 clearTimeout(pgwSlideshow.resizeEvent);
                 pgwSlideshow.resizeEvent = setTimeout(function() {
                     setSizeClass();
+
                     var maxHeight = pgwSlideshow.plugin.find('.ps-current > ul > li.elt_' + pgwSlideshow.currentSlide + ' img').height();
                     updateHeight(maxHeight);
 
@@ -84,11 +82,9 @@
 
         // Update the current height
         var updateHeight = function(height, animate) {
-        	//ADD BY WXB：修改自适应高度
+        	//ADD BY WXB 修改高度自适应，如果窗口高度+缩略高度 大于定义的最高高度，使用最高高度
         	height=$(window).height()-pgwSlideshow.plugin.find('.ps-list').height();
         	//END ADD
-        	//alert(height +  ":" +$(window).height()+":" +pgwSlideshow.plugin.find('.ps-list').height() );
-            // Check maxHeight
             if (pgwSlideshow.config.maxHeight) {
                 if (height + pgwSlideshow.plugin.find('.ps-list').height() > pgwSlideshow.config.maxHeight) {
                     height = pgwSlideshow.config.maxHeight - pgwSlideshow.plugin.find('.ps-list').height();
@@ -142,7 +138,22 @@
 
         // Setup
         var setup = function() {
-
+        	//初始化数据 add by wxb on 2015-11-13
+        	if(pgwSlideshow.config.data.length>0){
+        		var img_data_arry = pgwSlideshow.config.data;
+        		for(var i=0 ;i < pgwSlideshow.config.data.length;i++){
+        			img_data = img_data_arry[i];
+        			var imgHtml ='<img  src="'+img_data.src+'" alt="'+(img_data.alt?img_data.alt:''); 
+        			imgHtml = imgHtml+'" data-description="'+ (img_data["data-description"]?img_data["data-description"]:'')
+        			imgHtml = imgHtml+'" data-large-src="'+(img_data["data-large-src"]?img_data["data-large-src"]:'')+'" />';
+        			if(img_data.href){
+        				imgHtml='<a href="'+img_data.href+'" target="'+(img_data.target?img_data.target:'_blank')+'">'+imgHtml+'</a>';
+        			}
+        			imgHtml="<li>"+imgHtml+"</li>";
+        			pgwSlideshow.plugin.append(imgHtml);
+        		}		
+        	}
+        	//end 数初始化
             // Create container
             pgwSlideshow.plugin.removeClass('pgwSlideshow').removeClass(pgwSlideshow.config.mainClassName);
             pgwSlideshow.plugin.wrap('<div class="ps-list"></div>');
@@ -217,8 +228,13 @@
                 pgwSlideshow.data.push(element);
 
                 $(this).addClass('elt_' + element.id);
-                $(this).wrapInner('<span class="ps-item' + (elementId == 1 ? ' ps-selected' : '') + '"></span>');
-                
+                //add by wxb  on 2015-11-16 是否使用数字不使用缩略图
+                if("number" == pgwSlideshow.config.displayModel){
+                	$(this).html('<span class="ps-item' + (elementId == 1 ? ' ps-selected' : '') + '"><a>'+elementId+'</a></span>');
+                }else{
+                //end add
+                	$(this).wrapInner('<span class="ps-item' + (elementId == 1 ? ' ps-selected' : '') + '"></span>');
+                }
                 // Set element in the current list
                 var currentElement = $('<li class="elt_' + elementId + '"></li>');
 
@@ -241,7 +257,8 @@
 
                 elementId++;
             });
-
+            
+           
             // Set list elements
             if (pgwSlideshow.config.displayList) {
                 setListWidth();
@@ -268,7 +285,7 @@
 
             // Display the first element
             displayElement(1);
-
+            
             // Set the first height
             pgwSlideshow.plugin.find('.ps-current > ul > li.elt_1 img').on('load', function() {
                 setSizeClass();
@@ -321,6 +338,12 @@
                 element.description = elementDescription;
             }
 
+            // 图片点击事件
+            var elementOnClick = obj.find('img').attr('onClick');
+            if ((typeof elementOnClick != 'undefined') && (elementOnClick != '')) {
+                element.elementOnClick = elementOnClick;
+            }
+            
             return element;
         };
 
@@ -841,7 +864,7 @@
 
             // Merge new options with the default configuration
             pgwSlideshow.config = $.extend({}, defaults, newOptions);
-
+　　　　　　
             // Setup
             setup();
 
