@@ -4,7 +4,6 @@
 <head>
 <title>Pagination 分页表格</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-<link href="../demo.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
 body {
 	border: 0;
@@ -38,15 +37,16 @@ padding-left: 16px
 		//定义查找寒素
 		grid.sortBy("loginName", "asc");
 		
-		var html = '<div style="text-align:center;height:100%;margin-top:-5px;"><input id="key" class="mini-textbox" emptyText="请输入查找条件"'
-				    +'style="width:250px;  font-size:12pt;" onenter="onKeyEnter" /> <a '
-				  +'class="mini-button  mini-button-iconLeft" iconCls="icon-search" onclick="search()">查询</a></div>';
-		$("#xyPanel .mini-tools").before(html);
+		$("#xyPanel .mini-tools").before($("#seachDiv"));
+		
+		$("#searchBut").live("click",search); //绑定查询事件
 
 	});
 
 	function search() {
 		var key = mini.get("key").getValue();
+		var key = $("#seach_szbj").val()+"@"+$("#seach_fhdz").val()+"@"+key;
+		
 		grid.load({
 			key : key
 		});
@@ -55,7 +55,12 @@ padding-left: 16px
 	function onKeyEnter(e) {
 		search();
 	}
-
+  
+   //班级
+   var bj_dm = [{DM:0,MC:'未选择'},{DM:1,MC:'一班'},{DM:2,MC:'二班'},{DM:3,MC:'三班'}];
+   //分会
+   var fhdz_dm = [{DM:0,MC:'未选择'},{DM:1,MC:'深圳'},{DM:2,MC:'上海'},{DM:3,MC:'武汉'},{DM:4,MC:'云南'},{DM:5,MC:'北美'},{DM:6,MC:'广州'},{DM:7,MC:'北京'}];
+    
 	function onDrawFbzlCell(e) {
 		var record = e.record;
 		if (e.field == "grjz") {
@@ -67,6 +72,24 @@ padding-left: 16px
 
 			e.cellHtml = html;
 			return;
+		}
+		//
+		if(e.field == "szbj"){
+			if(bj_dm[record.szbj]){
+				e.cellHtml = bj_dm[record.szbj].MC;
+			}else{
+				e.cellHtml="";
+			}
+			return;	
+		}
+		if(e.field == "fhdz"){
+			if(fhdz_dm[record.fhdz]){
+				e.cellHtml = fhdz_dm[record.fhdz].MC;
+			}
+			else{
+				e.cellHtml="";
+			}
+			return;	
 		}
 		if(e.field == "jbzlzt"){ //基本状态
 			var html = "";
@@ -83,7 +106,7 @@ padding-left: 16px
 			if(record.khyh&&record.yhzh&&record.zzje&&record.zzsj){
 				 html ="<span class='icon-ok' >已登记</span>";
 				if("1"==record.hksfydz){
-					html =html+"<span class='icon-ok'>已到账</span>";
+					html ="<span class='icon-ok'>已到账</span>";
 				}else{
 					html = html+"<span class='red'>暂未到账</span>";
 				}
@@ -106,7 +129,8 @@ padding-left: 16px
 
 </head>
 <body>
-	<!-- <table class="mini-panel-header"
+	<!-- 
+	<table class="mini-panel-header"
 		style="margin: -10px -5px 5px -10px;padding:5px 10px; z-index:9;width: 100%;" cellpadding="0"
 		cellspacing="0p" border="0">
 		<tr>
@@ -117,7 +141,8 @@ padding-left: 16px
 				class="mini-button  mini-button-iconLeft" iconCls="icon-search"
 				onclick="search()">查询</a></td>
 		</tr>
-	</table> -->
+	</table> 
+	-->
 
 	<div id="xyPanel" class="mini-panel" title="校友列表"
 		style="width:100%;height:100%; " showToolbar="false" showHeader="true"
@@ -130,12 +155,14 @@ padding-left: 16px
 			<div property="columns">
 				<div field="xh" type=indexcolumn headeralign="center">序号</div>
 				<div field="xm" headeralign="center">姓名</div>
+				<div field="szbj" headeralign="center">班级</div>
+				<div field="fhdz" headeralign="center">分会</div>
 				<div field="sjdh" headeralign="center">手机电话</div>
-				<div field="grjz" headeralign="center">相片</div>
+				<div field="grjz" headeralign="center" width="45">相片</div>
 				<div header="状态" headeralign="center">
                 <div property="columns">
                     <div field="jbzlzt" width="45" headeralign="center">基本资料</div>
-                    <div field="hkdj" width="55" headeralign="center">汇款登记</div>
+                    <div field="hkdj" width="80" headeralign="center">汇款登记</div>
                 </div>
             	</div
 				
@@ -145,6 +172,44 @@ padding-left: 16px
 
 
 	</div>
-
+	
+	<div  id="seachDiv" style="text-align:center;margin-top:-8px;">
+	<table >
+		<tr>
+		<td style="width: 20%"></td>
+		<td>班级</td>
+		<td>
+			<select id="seach_szbj"  class="mini-buttonedit-border" value="0" >
+				<option value="0">全部</option>
+				<option value="1">一班</option>
+				<option value="2">二班</option>
+				<option value="3">三班</option>
+			</select>
+		</td>
+		<td>分会</td>
+		<td>
+			<select id="seach_fhdz"  class="mini-buttonedit-border" value="0">
+				<option value="0">全部</option>
+				<option value="1">深圳</option>
+				<option value="2">上海</option>
+				<option value="3">武汉</option>
+				<option value="4">云南</option>
+				<option value="5">北美</option>
+				<option value="6">广州</option>
+				<option value="7">北京</option>
+			</select>
+		</td>
+		<td>
+			<input id="key" class="mini-textbox" emptyText="请输入查找条件"
+			style="width:250px; font-size:12pt;" onenter="onKeyEnter" />
+		</td>
+		<td>
+		 	<a id="searchBut" class="mini-button mini-button-iconLeft" iconCls="icon-search" >查询</a></div>
+		</td>
+		</tr>
+	</table>
+	</div>
+	
+	
 </body>
 </html>

@@ -18,7 +18,8 @@
             adaptiveDuration : 200,
             transitionDuration : 500,
             intervalDuration : 3000,
-            data:[]
+            data:[],
+            bar:null
         };
 
         if (this.length == 0) {
@@ -158,7 +159,11 @@
             pgwSlideshow.plugin.removeClass('pgwSlideshow').removeClass(pgwSlideshow.config.mainClassName);
             pgwSlideshow.plugin.wrap('<div class="ps-list"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
-
+            //添加工具div
+            if(pgwSlideshow.config.bar){
+            	pgwSlideshow.plugin.append($(pgwSlideshow.config.bar));
+            }
+            
             pgwSlideshow.plugin.wrap('<div class="' + pgwSlideshow.config.mainClassName + '"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
 
@@ -355,7 +360,7 @@
             if (element.title) {
                 elementText += '<b>' + element.title + '</b>';
             }
-
+           
             if (element.description) {
                 if (elementText != '') elementText += '<br>';
                 

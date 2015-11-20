@@ -17,9 +17,7 @@ body {
 	height: 100%;
 	overflow: hidden;
 }
-.mini-panel-header{
-	display: none
-}
+
 
 </style>
 <script type="text/javascript">
@@ -79,7 +77,12 @@ function GetData (){
 	return param;
 }
 
-function uploadFile (){	
+function uploadFile (){
+	mini.get("imageList").validate();
+	if(!mini.get("imageList").isValid()){
+		mini.alert("您上传的每张照片需要选择对应的相册分类，请选择后再提交保存。", "提示");
+		return;
+	}
 	
     var imageStr = mini.encode(mini.get("imageList").getData());
     var delImageStr = mini.encode(delArry);
@@ -116,6 +119,14 @@ function onDrawFbzlCell(e) {
 		}	 
 		return;
 	 }
+	if (e.field == "xclx"){
+		if("0" == record.xclx){
+			var html = "<span style='color:gray;font-style: italic;'>请选择相册类型</span>";
+			 e.cellHtml =html;	
+		}	 
+		return;
+	 }
+	
 }
 
 function remove() {
@@ -135,7 +146,7 @@ function remove() {
  */
 function loadImage(userId){
 	
-	$.post("/txjh/op/user/imageList.do", {userId:userId,flag:"3"}, function(data) {
+	$.post("/txjh/op/user/imageListNopage.do", {userId:userId,flag:"3"}, function(data) {
 		if (data.success == true) {
 			var imageList = data.data;
 			var grid = mini.get("imageList");
@@ -144,6 +155,20 @@ function loadImage(userId){
 	});
 	
 
+}
+
+
+/**********表格验证**************/
+function onCellValidation(e) {
+	debugger;
+    if (e.field == "xclx") {
+        if (e.value>0) {
+           
+        }else{
+        	 e.isValid = false;
+             e.errorText = "请选择相册类型";
+        }
+    }
 }
 </script>
 </head>
@@ -156,22 +181,31 @@ function loadImage(userId){
 		</tr>
 	</table>
     <div id="imageList"  class="mini-datagrid" 
-       style="width:99%;height:60%;" 
+       style="width:99%;height:70%;" 
         idField="id" 
         allowResize="true" 
         ondrawcell="onDrawFbzlCell"
         allowCellEdit="true" allowCellSelect="true" multiSelect="true" 
         editNextOnEnterKey="true"  editNextRowCell="true"
         showPager="false"
+        allowCellValid="true"
+        onCellvalidation="onCellValidation" 
     >
 		<div property="columns">
-			<div type="indexcolumn"  width="10" >序号</div>
-			<div field="path" headeralign="center"  width="20" >图片预览</div>
+			<div type="indexcolumn"  width="20" >序号</div>
+			<div field="path" headeralign="center"  width="30" >图片预览</div>		
+			<div field="xclx"  vtype="required" headeralign="center"  width="60" type="comboboxcolumn" >相册分类
+				<input property="editor" class="mini-combobox"   
+				allowInput="true"  required="true"  valueFromSelect="true" showNullItem='false' 
+				data="[{DM:'1',MC:'青葱岁月'},{DM:'2',MC:'曾经记忆'},{DM:'3',MC:'毕业照'},{DM:'4',MC:'30年时光'},{DM:'5',MC:'个人专辑'}]"
+				textField="MC" valueField="DM" 
+				/>  
+			</div>
 			<div field=content headeralign="center">
 				<input property="editor" class="mini-textarea" style="width:200px;"
 					minWidth="200" minHeight="20" value=" " /> 描述信息
 			</div>
-			<div field="cz" width="10" >操作
+			<div field="cz" width="20" >操作
 			
 			</div>
 		</div>

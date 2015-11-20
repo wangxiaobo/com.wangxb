@@ -61,6 +61,8 @@ public class UserInfo implements java.io.Serializable {
     private  String tzr   ;
 
     private  String hksfydz   ;
+    
+    private  String fhdz;
 	// Constructors
 
 	/** default constructor */
@@ -390,5 +392,14 @@ public class UserInfo implements java.io.Serializable {
 		this.hksfydz = hksfydz;
 	}
 	
+	@Column(name = "fhdz")
+	public String getFhdz() {
+		return fhdz;
+	}
 
+	public void setFhdz(String fhdz) {
+		this.fhdz = fhdz;
+	}
+	
+	
 }

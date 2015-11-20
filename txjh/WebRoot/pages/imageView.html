@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -6,8 +6,9 @@
 <script src="/txjh/boot.js" type="text/javascript"></script>
 <script src="/txjh/js/common/app.js" type="text/javascript"></script>
 <script src="/txjh/scripts/PgwSlideshow/pgwslideshow.js" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="/txjh/scripts/PgwSlideshow/pgwslideshow.css">
 
+<link rel="stylesheet" type="text/css" href="/txjh/scripts/PgwSlideshow/pgwslideshow.css">
+<link rel="stylesheet" type="text/css" href="/txjh/style/lanrenzhijia.css">
 
 <style type="text/css">
 body {
@@ -36,15 +37,47 @@ body {
 
 }
 
+.vbut{
+ height:16px;
+ display:block;
+ margin:0px;
+ padding:0px;
+ border:1px #FFF solid;
+ cursor: pointer;
+}
+
+#sczDiv{
+ cursor: pointer;
+}
+
+
+
+.bar {
+	position:absolute;
+	top:0px;
+	left:-30px;
+}
+
 </style>
 </head>
 <body >
-
-   <div id="imageRe" style="text-align: center;display: none;">
-   	 <ul id="pgwSlideshow" ></ul>
+   <div id="imageRe" style="text-align: center;display: none;"> 
    </div>
    
-
+   <!-- 浮动导航 -->
+   
+   <div id="floatMenu"  style="">
+   	  <input id="xclx" name="xclx" class="mini-textbox"  value="0"  style="display:none;"/>
+	  <input id="userId" name="userId" class="mini-textbox"  value=""  style="display:none;"/>	  
+	  <ul  id="menu2" class="menu2">
+	    <li><a href="javascript:void(0)"  class="cur"  value="0">全部 </a></li>
+	    <li><a href="javascript:void(0)" value="1">青葱岁月</a></li>
+	    <li><a href="javascript:void(0)" value="2">曾经记忆</a></li>
+	    <li><a href="javascript:void(0)" value="3">毕业照</a></li>
+	    <li><a href="javascript:void(0)" value="4">30年时光</a></li>
+	    <li><a href="javascript:void(0)" value="5">个人专辑</a></li>	    
+	  </ul>
+	</div>	
 </body>
 
 <script type="text/javascript">
@@ -53,19 +86,47 @@ body {
  * 调用方法初始化tupian
  */
 function showImage(userId){
+	mini.get("userId").setValue(userId);
+	getGroup(0);
+}
+
+function  getGroup(flag){
+	debugger;
+	var pageBar = $("#pageBar");
+	var pageIndex = 0;
+	var pageSize = 10;
+	var pageCount =1;
+	var userId = mini.get("userId").getValue();
+	//如果是个人只显示 7个
+	if(userId){
+		pageSize = 7;
+	}
+	var xclx = mini.get("xclx").getValue();
+	if(pageBar.length){
+		 pageIndex = parseInt(pageBar.attr("pageIndex"))+parseInt(flag);
+		 pageSize = pageBar.attr("pageSize");
+		 pageCount = pageBar.attr("pageCount");
+	}
+	if(pageIndex>=pageCount|| 0>pageIndex){   //不能超过边界
+		return;
+	}
+	if(!userId){
+		userId="";
+	}
 	
-	$.post("/txjh/op/user/imageList.do", {userId:userId,flag:"3"}, function(data) {
-		if (data.success == true) {
+	$.post("/txjh/op/user/imageList.do", {pageIndex:pageIndex,pageSize:pageSize,userId:userId,flag:"3",xclx:xclx}, function(data) {
 			var imageList = data.data;
 			var html = ""; 
 			if(imageList.length>0){
 				for(var i=0;i<imageList.length;i++){
 					var url = "/txjh/op/user/file/"+imageList[i].imageId;
-					//var auth="上传者：（"+imageList[i].userName+")  上传时间："+imageList[i].lrsj;
-					var auth="上传者：（"+imageList[i].userName+")  ";
 					
-					html= html + '<li ><img data-large-src="'+url+'" src="'+url+'-2" alt="'+imageList[i].content+'" data-description="'+auth+'"></li>';
-				}	
+					var desc="<span id='sczDiv'  value='"+imageList[i].userId+"'>上传者:"+imageList[i].userName+"</span><a id='pageBar' userId='"+userId+"'  pageIndex='"+data.pageIndex+"' pageSize='"+data.pageSize+"' pageCount='"+data.total+"' >  第"+(data.pageIndex+1)+"/"+(data.total)+"页,共"+data.totalSize+"张  </a>";
+					
+					html= html + '<li ><img data-large-src="'+url+'-12" src="'+url+'-2" alt="'+imageList[i].content+'" data-description="'+desc+'"></li>';
+				}
+				$("#imageRe").html("<ul id='pgwSlideshow' ></ul>");
+				
 				$("#pgwSlideshow").html(html);
 				//启动轮休
 			    $("#pgwSlideshow").pgwSlideshow(
@@ -75,24 +136,56 @@ function showImage(userId){
 			    	 displayList:true,
 			    	 maxHeight:600
 			    });
+				//绑定换页事件
+				$(".ps-list .ps-prev").live("click", function() {
+					getGroup(-1);
+				});
+				$(".ps-list .ps-next").live("click", function() {
+					getGroup(1);
+				});
+				if(!userId){ //如果是全局相册的的情况
+					//绑定上传者事件
+					$("#sczDiv").live("click", function() {
+						showImage($(this).attr("value"));	
+					});
+				}
+				$(".ps-list > ul > li:gt(1)").click();
 				
 			}else{
 				var html ="<img  src='/txjh/image/qd.jpg'/><br>暂未上传照片."
 				$("#imageRe").html(html)
+				//$("#floatMenu").hide();
 			}
 			$("#imageRe").show();
 			
-		}
 	});
 	
-
+	
+	
 }
 
 $(function() {
+	mini.parse();
 	$(".ps-current img").live("click", function() {
-		window.open($(this).attr("src")); 
+		var url = $(this).attr("src");
+		url = url.split("-");
+		window.open(url[0]);
 	});
+	//绑定相册选择事件
+	
+	$("#menu2 a").live("click", function() {
+		$("#menu2 a").removeClass("cur");
+		$(this).addClass("cur");
+		mini.get("xclx").setValue($(this).attr("value"));
+		$("#pageBar").remove();
+		getGroup(0);
+	});
+	
+	
 });
+
+
+
 
 </script>
 </html>

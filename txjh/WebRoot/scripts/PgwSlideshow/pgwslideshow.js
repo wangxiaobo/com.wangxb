@@ -18,7 +18,8 @@
             adaptiveDuration : 200,
             transitionDuration : 500,
             intervalDuration : 3000,
-            data:[]
+            data:[],
+            bar:null
         };
 
         if (this.length == 0) {
@@ -47,7 +48,7 @@
 
             // Merge user options with the default configuration
             pgwSlideshow.config = $.extend({}, defaults, options);
-
+            debugger;
             // Setup
             setup();
 
@@ -158,7 +159,12 @@
             pgwSlideshow.plugin.removeClass('pgwSlideshow').removeClass(pgwSlideshow.config.mainClassName);
             pgwSlideshow.plugin.wrap('<div class="ps-list"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
-
+            //添加工具div
+            if(pgwSlideshow.config.bar){
+            	pgwSlideshow.plugin.append("<br/>");
+            	pgwSlideshow.plugin.append($(pgwSlideshow.config.bar));
+            }
+            //end 添加工具条
             pgwSlideshow.plugin.wrap('<div class="' + pgwSlideshow.config.mainClassName + '"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
 
@@ -355,7 +361,7 @@
             if (element.title) {
                 elementText += '<b>' + element.title + '</b>';
             }
-
+           
             if (element.description) {
                 if (elementText != '') elementText += '<br>';
                 
@@ -732,8 +738,8 @@
             } else {
                 var marginLeft = parseInt((containerWidth - listWidth) / 2);
                 listObject.css('left', 0).css('margin-left', marginLeft);
-                containerObject.find('.ps-prev').hide();
-                containerObject.find('.ps-next').hide();
+                containerObject.find('.ps-prev').show();
+                containerObject.find('.ps-next').show();
                 pgwSlideshow.plugin.find('.ps-list > ul').unbind('touchstart touchmove touchend');
             }
 

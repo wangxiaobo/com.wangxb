@@ -115,7 +115,8 @@ public class UserController extends BaseController {
 	public Map<String, Object> search(String key){
 		
 		//查询条件
-		String keyStr = request.getParameter("key");
+		String[] paramList =null;
+		
 		//分页
 		int pageIndex =Integer.valueOf( request.getParameter("pageIndex"));
 		int pageSize = Integer.valueOf( request.getParameter("pageSize"));
@@ -123,15 +124,29 @@ public class UserController extends BaseController {
 		String sortField = request.getParameter("sortField");
 		String sortOrder = request.getParameter("sortOrder");
 		
-		String hql = "from UserInfo  t where t.xm like ? or t.sjdh like ? or t.loginName  like ?  order by "+sortField+"  "+sortOrder;
+		StringBuffer hql = new StringBuffer( "from UserInfo  t where  1=1 " );
 		
-		keyStr = StringUtil.nvl(keyStr, "");
-		String [] paramValues = new String[3];
-		paramValues[0] = "%"+keyStr+"%";
-		paramValues[1] = "%"+keyStr+"%";
-		paramValues[2] = "%"+keyStr+"%";
-				
-		List userList = userService.getResultsByHql(hql, paramValues);
+		String keyStr = null;
+		if(! "".equals(StringUtil.nvl(request.getParameter("key"), ""))){
+			paramList = request.getParameter("key").split("@");
+			if(!"0".equals(paramList[0])){//班级
+				hql.append("and t.szbj="+paramList[0]);
+			}
+			if(!"0".equals(paramList[1])){//分会
+				hql.append("and t.fhdz="+paramList[1]);
+			}
+			if(paramList.length>2){
+				keyStr = paramList[2];
+			}
+		}else{
+			keyStr = request.getParameter("key");
+		}
+		//模糊查询条件
+		 keyStr = StringUtil.nvl(keyStr, "");
+		hql.append(" and ( t.xm like '%"+keyStr+"%' or t.sjdh like '%"+keyStr+"%' or t.loginName  like '%"+keyStr+"%' ) order by "+sortField+"  "+sortOrder);
+		
+	
+		List userList = userService.getResultsByHql(hql.toString(), null);
 		
 		Map<String, Object> result= new HashMap<String, Object>();
 		int total = userList.size();
@@ -193,7 +208,17 @@ public class UserController extends BaseController {
 			
 			if( params.length>1){
 				Integer quality=Integer.valueOf(params[1]);
-				Thumbnails.of(image.getPath()).size(50*quality,50*quality).toOutputStream(out);
+				String thPath = image.getPath().replace("private", "cache/"+quality+"/");//缓存的路径
+				if(!FileUtil.exists(thPath)){//如果不存在生产一张
+					ByteArrayOutputStream  byArr = new ByteArrayOutputStream();
+					Thumbnails.of(image.getPath()).size(50*quality,50*quality).toOutputStream(byArr);
+					FileUtil.writeBytesToFile(thPath, byArr.toByteArray());
+					out.write(byArr.toByteArray());
+					byArr.close(); //关闭流
+				}else{
+					out.write(FileUtil.readFileToBytes(thPath));
+				}
+				//Thumbnails.of(image.getPath()).size(50*quality,50*quality).toOutputStream(out);
 			}else{
 				out.write(FileUtil.readFileToBytes(image.getPath()));
 			}
@@ -276,8 +301,45 @@ public class UserController extends BaseController {
 	
 	@RequestMapping(value = "/imageList")
 	@ResponseBody
-	public ResultVO imageList( ImageInfo imageInfo){
+	public Map<String,Object> imageList( ImageInfo imageInfo){
 		
+		//分页
+		int pageIndex =Integer.valueOf( request.getParameter("pageIndex"));
+		int pageSize = Integer.valueOf( request.getParameter("pageSize"));
+		
+		StringBuffer 	hql = new StringBuffer();
+		 hql.append("select new ImageInfo(info,user.xm )from ImageInfo info , UserInfo user where info.userId = user.userId"); 
+		 hql.append("  and info.flag='"+imageInfo.getFlag()+"'");
+         if(null != imageInfo.getUserId()){
+        	 hql.append(" and info.userId="+imageInfo.getUserId());
+         }
+         if(!"0".equals(imageInfo.getXclx())){
+        	 hql.append(" and info.xclx='"+imageInfo.getXclx()+"'");
+         }
+		 hql.append(" order by info.lrsj desc");
+		
+		List<Object> imgList =  userService.getResultsByHql(hql.toString(), null);
+		//返回结果 组装
+		Map<String, Object> result= new HashMap<String, Object>();
+		int total = imgList.size();
+		result.put("totalSize",total);
+		result.put("total", (total+pageSize-1)/pageSize);
+		result.put("pageIndex", pageIndex);
+		result.put("pageSize", pageSize);
+		//照片分页
+		int start = pageIndex*pageSize> total?total:pageIndex*pageSize;
+		int end =(pageIndex+1)*pageSize > total? total:(pageIndex+1)*pageSize;
+		result.put("data", imgList.subList(start, end));
+
+		return  result;
+	
+	}
+	
+	@RequestMapping(value = "/imageListNopage")
+	@ResponseBody
+	public ResultVO imageListNopage( ImageInfo imageInfo){
+		
+		//分页	
 		StringBuffer 	hql = new StringBuffer();
 		 hql.append("select new ImageInfo(info,user.xm )from ImageInfo info , UserInfo user where info.userId = user.userId"); 
 		 hql.append("  and info.flag='"+imageInfo.getFlag()+"'");
@@ -287,8 +349,7 @@ public class UserController extends BaseController {
 		 hql.append(" order by info.lrsj desc");
 		
 		List<Object> imgList =  userService.getResultsByHql(hql.toString(), null);
-		
-
+		//返回结果 组装
 		return  ResultVO.setSuccess(imgList);
 	
 	}

@@ -28,6 +28,8 @@ public class ImageInfo implements java.io.Serializable {
 	private String content;
 	private String flag;
 	private String lrsj;
+	private String xclx;
+
 	
 	/** default constructor */
 	public ImageInfo() {
@@ -40,6 +42,7 @@ public class ImageInfo implements java.io.Serializable {
 		this.path=info.getPath();
 		this.content= StringUtil.nvl(info.getContent(),"");
 		this.flag=info.getFlag();
+		this.xclx = info.getXclx();
 		this.lrsj=info.getLrsj();	
 		
 	}
@@ -109,5 +112,16 @@ public class ImageInfo implements java.io.Serializable {
 	public void setLrsj(String lrsj) {
 		this.lrsj = lrsj;
 	}
+	
+	@Column(name = "xclx")
+	public String getXclx() {
+		return xclx;
+	}
 
+	public void setXclx(String xclx) {
+		this.xclx = xclx;
+	}
+
+	
+	
 }

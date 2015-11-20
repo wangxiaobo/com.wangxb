@@ -34,6 +34,7 @@ body {
     cotorlArry.push("cxfs");
     cotorlArry.push("tzr");
     cotorlArry.push("hksfydz");
+    cotorlArry.push("fhdz"); //分会地址
 	$(function() {
 		var user = mini.decode(SUI.store.get("loginUser"));
 		
@@ -188,7 +189,7 @@ body {
 					}
 					
 				}
-				window.top.$("#xylbBut").click();
+				//window.top.$("#xylbBut").click();  IEbug
 			} else {
 				if(falg != false){
 					mini.alert("保存个人信息失败", "提示");
@@ -232,7 +233,7 @@ body {
 			url : "/txjh/pages/fileUpload.html",
 			title : "照片管理",
 			width : 600,
-			height :400,
+			height :500,
 			showMaxButton: true,
 			onload : function() {
 				var  data = new mini.Form("userxx").getData();
@@ -305,7 +306,7 @@ body {
 					border="0">
 					<tr>
 						<td style="width:100px">姓名：</td>
-						<td style="width:250px"><input id="xm" name="xm" class="mini-textbox"
+						<td style="width:300px"><input id="xm" name="xm" class="mini-textbox"
 							width="90%" /></td>
 						<td rowspan="6" align="center">
 						    <input id="grjz" name="grjz" class="mini-textbox" style="display:none;"/>
@@ -325,7 +326,12 @@ body {
 					<tr>
 						<td>班级：</td>
 						<td>
-						 <input id="szbj" name="szbj" showNullItem="false" width="90%" class="mini-combobox"  data="[{DM:1,MC:'一班'},{DM:2,MC:'二班'},{DM:3,MC:'三班'}]" value="" textField="MC" valueField="DM" />
+						 <input id="szbj" name="szbj" showNullItem="false" width="35%" class="mini-combobox"  data="[{DM:1,MC:'一班'},{DM:2,MC:'二班'},{DM:3,MC:'三班'}]" value="" textField="MC" valueField="DM" />
+						 <span width="35%">分会:</span>
+						 <input id="fhdz" name="fhdz" showNullItem="false"
+							width="36%" class="mini-combobox"
+							data="[{DM:0,MC:'未选择'},{DM:1,MC:'深圳'},{DM:2,MC:'上海'},{DM:3,MC:'武汉'},{DM:4,MC:'云南'},{DM:5,MC:'北美'},{DM:6,MC:'广州'},{DM:7,MC:'北京'}]" textField="MC"
+							valueField="DM" />
 						</td>
 					</tr>
 					<tr>
@@ -343,7 +349,8 @@ body {
 					<tr>
 						<td>性别：</td>
 						<td>
-						 <input id="xb" name="xb" showNullItem="false" width="90%" class="mini-combobox"  data="[{DM:1,MC:'男'},{DM:2,MC:'女'}]"value="1" textField="MC" valueField="DM" />
+						 <input id="xb" name="xb" showNullItem="false" width="90%"  class="mini-combobox"  data="[{DM:1,MC:'男'},{DM:2,MC:'女'}]" value="1" textField="MC" valueField="DM" />
+						
 						</td>
 					</tr>
 					<tr>
@@ -389,7 +396,6 @@ body {
 				<table
 					style="width:100%;margin: 0px;padding: 20px 50px;table-layout:fixed;"
 					border="0">
-					
 					<tr>
 						<td style="width:100px">行程安排：</td>
 						<td style="width:150px"><input id="cxfs" name="cxfs" showNullItem="false"
@@ -499,7 +505,7 @@ body {
 		</div>
 
 		<div id="tabsButtons"  style="display: none;margin:0px; margin-top:10px ;padding-top: 8px!important;">
-		  <a class="mini-button mini-button-iconLeft" iconCls="icon-save" onclick="saveUser()" >保存个人资料</a>
+		  <a class="mini-button mini-button-iconLeft" iconCls="icon-save" onclick="saveUser()" >提交保存资料</a>
 		  <a id="sczpBut" class="mini-button mini-button-iconLeft" iconCls="icon-upload" onclick="onSczp()" >照片管理</a>
 		</div>
 	</form>
