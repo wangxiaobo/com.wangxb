@@ -39,7 +39,7 @@ body {
 		var user = mini.decode(SUI.store.get("loginUser"));
 		
 		mini.parse();
-		reloadXc();
+		//reloadXc();
 		
 		var crr_user = mini.decode(SUI.store.get("loginUser"));
         
@@ -101,7 +101,6 @@ body {
 	function SetData(data) {
 		//跨页面传递的数据对象，克隆后才可以安全使用
 		data = mini.clone(data);
-		debugger;
 		new mini.Form("userxx").setData(data);
 		
 		 if("D" == mini.get("jdyq").getValue() ){
@@ -208,24 +207,12 @@ body {
 	
 	}
 	//刷新相册table页面
-	
-	function reloadXc(){
-		var tabs = mini.get("tabs1");
-		//个人相册
-		var grxcTab = tabs.getTab("grxc");
-		
-		tabs.loadTab("/txjh/pages/imageView.html", grxcTab, function(){
-			//加载
-			var  data = new mini.Form("userxx").getData();
-			var iframe = tabs.getTabIFrameEl(grxcTab);
-			iframe.contentWindow.showImage(data.userId);
-			
-		}, function(){
-			//销毁
-		});
+	function xcLoad (e){
+		  var tabs = e.sender;
+          var iframe = tabs.getTabIFrameEl(e.tab);
+          var  data = new mini.Form("userxx").getData();
+          iframe.contentWindow.showImage(data.userId);
 	}
-	
-	
 	//上传文件
 	function onSczp(){
 		
@@ -237,15 +224,15 @@ body {
 			showMaxButton: true,
 			onload : function() {
 				var  data = new mini.Form("userxx").getData();
+				debugger;
 				var iframe = this.getIFrameEl();
 				iframe.contentWindow.loadImage(data.userId);
 			},
 			ondestroy : function(action) {
-				reloadXc();
 				var tabs = mini.get("tabs1");
 				//个人相册
 				var grxcTab = tabs.getTab("grxc");
-				tabs.reloadTab (grxcTab);
+				//grxcTab.onload();
 			}
 		});
 	}
@@ -479,7 +466,7 @@ body {
 				</table>
 
 			</div>
-			<div name="grxc" title="个人相册"  url=""></div>
+			<div name="grxc" title="个人相册" id="grxc" onload="xcLoad" url="/txjh/pages/imageView.html"></div>
 			<div name="mmgl" title="密码管理"  url="">
 					<table
 					style="width:100%;margin: 0px;padding: 20px 50px;table-layout:fixed;"

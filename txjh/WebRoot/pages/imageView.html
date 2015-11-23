@@ -50,8 +50,6 @@ body {
  cursor: pointer;
 }
 
-
-
 .bar {
 	position:absolute;
 	top:0px;
@@ -134,7 +132,8 @@ function  getGroup(flag){
 			    	 transitionEffect:"fading",
 			    	 autoSlide:true,
 			    	 displayList:true,
-			    	 maxHeight:600
+			    	 maxHeight:600,
+			    	 alzy:true
 			    });
 				//绑定换页事件
 				$(".ps-list .ps-prev").live("click", function() {
@@ -149,7 +148,7 @@ function  getGroup(flag){
 						showImage($(this).attr("value"));	
 					});
 				}
-				$(".ps-list > ul > li:gt(1)").click();
+				//$(".ps-list > ul > li:gt(1)").click();
 				
 			}else{
 				var html ="<img  src='/txjh/image/qd.jpg'/><br>暂未上传照片."
@@ -180,8 +179,6 @@ $(function() {
 		$("#pageBar").remove();
 		getGroup(0);
 	});
-	
-	
 });
 
 
