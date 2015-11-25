@@ -19,7 +19,10 @@
             transitionDuration : 500,
             intervalDuration : 3000,
             data:[],
-            bar:null
+            bar:null,
+            placeholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC",
+            alzy:false
+
         };
 
         if (this.length == 0) {
@@ -48,7 +51,7 @@
 
             // Merge user options with the default configuration
             pgwSlideshow.config = $.extend({}, defaults, options);
-
+            debugger;
             // Setup
             setup();
 
@@ -161,9 +164,10 @@
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
             //添加工具div
             if(pgwSlideshow.config.bar){
+            	pgwSlideshow.plugin.append("<br/>");
             	pgwSlideshow.plugin.append($(pgwSlideshow.config.bar));
             }
-            
+            //end 添加工具条
             pgwSlideshow.plugin.wrap('<div class="' + pgwSlideshow.config.mainClassName + '"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
 
@@ -244,9 +248,9 @@
                 var currentElement = $('<li class="elt_' + elementId + '"></li>');
 
                 if (element.image) {
-                    currentElement.html('<img src="' + element.image + '" alt="' + (element.title ? element.title : '') + '">');
+                    currentElement.html('<img class="lazy" src="'+(pgwSlideshow.config.alzy?pgwSlideshow.config.placeholder:element.image)+'"data-original="' + element.image + '" alt="' + (element.title ? element.title : '') + '">');
                 } else if (element.thumbnail) {
-                    currentElement.html('<img src="' + element.thumbnail + '" alt="' + (element.title ? element.title : '') + '">');
+                    currentElement.html('<img class="lazy" src="'+(pgwSlideshow.config.alzy?pgwSlideshow.config.placeholder:element.thumbnail)+'"data-original="' + element.thumbnail + '" alt="' + (element.title ? element.title : '') + '">');
                 }
 
                 if (element.link) {
@@ -294,7 +298,6 @@
             // Set the first height
             pgwSlideshow.plugin.find('.ps-current > ul > li.elt_1 img').on('load', function() {
                 setSizeClass();
-
                 var maxHeight = pgwSlideshow.plugin.find('.ps-current > ul > li.elt_1 img').height();
                 updateHeight(maxHeight);
             });
@@ -470,6 +473,11 @@
                 opacity : 1,
             }, pgwSlideshow.config.transitionDuration, function() {
                 nextElement.css('position', '').css('z-index', 2).css('display', 'block');
+                var imgsf = nextElement.find('img');
+                if (pgwSlideshow.config.alzy&&"true" != imgsf.attr("loaded")) {
+                	imgsf.attr('src',imgsf.attr('data-original'));
+                	imgsf.attr("loaded",true);
+                }
                 finishElement(element);
             });
 
@@ -757,7 +765,14 @@
 
             var visibleZoneStart = Math.abs(parseInt(listObject.css('left')));
             var visibleZoneEnd = visibleZoneStart + containerWidth;
-            var elementZoneStart = pgwSlideshow.plugin.find('.ps-list .ps-selected').position().left;
+            
+            var elementZoneStart = 0;
+            try { //fix by wxb
+                elementZoneStart = pgwSlideshow.plugin.find('.ps-list .ps-selected').position().left;
+            } catch (e) {
+            	elementZoneStart = 0;
+            }
+
             var elementZoneEnd = elementZoneStart + pgwSlideshow.plugin.find('.ps-list .ps-selected').width();
 
             if ((elementZoneStart < visibleZoneStart) || (elementZoneEnd > visibleZoneEnd) || (listWidth > containerWidth && visibleZoneEnd > elementZoneEnd)) {
