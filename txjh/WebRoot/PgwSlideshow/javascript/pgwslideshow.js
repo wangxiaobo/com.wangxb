@@ -185,6 +185,7 @@
                 // Slider controls
                 if (pgwSlideshow.config.displayControls) {
                     pgwSlideshow.plugin.find('.ps-current').prepend('<span class="ps-prev"><span class="ps-prevIcon"></span></span>');
+                    pgwSlideshow.plugin.find('.ps-current').prepend('<div class="tool-bar"><table><tr><td><span class="sf">放大缩小</span><td><td><span class="xz">旋转</span></td></tr> <table></div>');
                     pgwSlideshow.plugin.find('.ps-current').append('<span class="ps-next"><span class="ps-nextIcon"></span></span>');
                     pgwSlideshow.plugin.find('.ps-current .ps-prev').click(function() {
                         pgwSlideshow.previousSlide();

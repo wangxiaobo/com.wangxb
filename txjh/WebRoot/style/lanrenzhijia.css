@@ -1,0 +1,30 @@
+
+#floatMenu {
+	position:absolute;
+	top:0px;
+	left:-30px;
+}
+#floatMenu ul {
+	margin:10px;
+	list-style:none;
+}
+#floatMenu ul li a {
+	display:block;
+	border:1px solid #999;
+	border-left:6px solid #999;
+	text-decoration:none;
+	color:#ccc;
+	padding:0px 0px 0px 5px;
+}
+#floatMenu ul li a:hover {
+	color:#fff;
+	background-color:#333333;
+}
+#floatMenu ul.menu2 li a:hover {
+	border-color:#9f0;
+}
+
+.cur{
+    border:1px solid #999;
+	background-color: green;
+}

@@ -208,3 +208,17 @@
     font-size: 0.8rem;
     padding: 8px;
 }
+
+.pgwSlideshow .tool-bar{
+    background: rgba(0, 0, 0, 0.5);
+    filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#99000000', endColorstr='#99000000');
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#99000000', endColorstr='#99000000')";
+    text-align: left;
+    font-size: 1rem;
+    color: #fff;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    padding: 2px;
+}

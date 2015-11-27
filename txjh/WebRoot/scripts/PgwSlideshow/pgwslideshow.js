@@ -160,7 +160,7 @@
         	//end 数初始化
             // Create container
             pgwSlideshow.plugin.removeClass('pgwSlideshow').removeClass(pgwSlideshow.config.mainClassName);
-            pgwSlideshow.plugin.wrap('<div class="ps-list"></div>');
+            pgwSlideshow.plugin.wrap('<div class="ps-list" style="height: 100px;"></div>');
             pgwSlideshow.plugin = pgwSlideshow.plugin.parent();
             //添加工具div
             if(pgwSlideshow.config.bar){
